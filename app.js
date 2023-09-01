@@ -40,8 +40,7 @@ function searchPeopleDataSet(people) {
             results = searchByName(people);
             break;
         case 'traits':
-            //! TODO
-            // results = searchByTraits(people);
+            results = searchByTraits(people);
             break;
         default:
             return searchPeopleDataSet(people);
@@ -64,27 +63,38 @@ function searchByName(people) {
     return fullNameSearchResults;
 }
 
-function mainMenu(person, people) {
+function searchByTraits(people) {
+    const traitToSearch = validatedPrompt(
+        'Please enter the trait you want to search for (e.g., eyeColor, occupation, etc.):',
+        ['eyeColor', 'occupation', 'gender', 'other_trait'] // Add more traits as needed
+    ).toLowerCase(); // Convert user input to lowercase
 
+    const results = people.filter(person => {
+        const personTrait = person[traitToSearch] ? person[traitToSearch].toLowerCase() : null; // Convert trait in person to lowercase if it exists, otherwise set to null
+        return personTrait === traitToSearch;
+    });
+
+    return results;
+}
+
+
+
+function mainMenu(person, people) {
     const mainMenuUserActionChoice = validatedPrompt(
-        `Person: ${person.firstName} ${person.lastName}\n\nDo you want to know their full information, family, or descendants?`,
-        ['info', 'family', 'descendants', 'quit']
+        `Person: ${person.firstName} ${person.lastName}\n\nDo you want to know their full information, family, descendants, search by trait, or quit?`,
+        ['info', 'family', 'descendants', 'trait', 'quit'] // Add 'trait' as an option
     );
 
     switch (mainMenuUserActionChoice) {
-        case "info":
-            //! TODO
-            // displayPersonInfo(person);
+        case "info":            
             break;
-        case "family":
-            //! TODO
-            // let personFamily = findPersonFamily(person, people);
-            // displayPeople('Family', personFamily);
+        case "family":            
             break;
-        case "descendants":
-            //! TODO
-            // let personDescendants = findPersonDescendants(person, people);
-            // displayPeople('Descendants', personDescendants);
+        case "descendants":            
+            break;
+        case "trait":
+            const traitResults = searchByTraits(people);
+            displayPeople('Trait Search Results', traitResults);
             break;
         case "quit":
             return;
