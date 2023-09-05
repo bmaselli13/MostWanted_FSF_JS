@@ -107,7 +107,7 @@ function mainMenu(person, people) {
             displayPersonInfo(person);
             break;
         case "family":
-            displayFamilyInfo(person, people);
+            displayFamilyInfo(person, people); 
             break;
         case "descendants":            
             displayDescendantsInfo(person, people);
@@ -121,11 +121,38 @@ function mainMenu(person, people) {
         default:
             alert('Invalid input. Please try again.');
     }
-}    
+} 
 
 function displayPeople(displayTitle, peopleToDisplay) {
     const formatedPeopleDisplayText = peopleToDisplay.map(person => `${person.firstName} ${person.lastName}`).join('\n');
     alert(`${displayTitle}\n\n${formatedPeopleDisplayText}`);
+}
+
+function displayFamilyInfo(person, people) {
+    const familyMembers = findImmediateFamily(person, people);
+    const formattedFamilyDisplayText = familyMembers.map(member => `${member.relation}: ${member.firstName} ${member.lastName}`).join('\n');
+    alert(`Immediate Family Members:\n\n${formattedFamilyDisplayText}`);
+}
+
+function findImmediateFamily(person, people) {
+    const familyMembers = [];
+
+    
+    if (person.currentSpouse) {
+        const spouse = people.find(p => p.id === person.currentSpouse);
+        if (spouse) {
+            familyMembers.push({ relation: 'Spouse', ...spouse });
+        }
+    }
+    
+    const parents = people.filter(p => person.parents.includes(p.id));
+    parents.forEach(parent => familyMembers.push({ relation: 'Parent', ...parent }));
+
+    
+    const siblings = people.filter(p => p.parents.includes(...person.parents) && p.id !== person.id);
+    siblings.forEach(sibling => familyMembers.push({ relation: 'Sibling', ...sibling }));
+
+    return familyMembers;
 }
 
 function displayPersonInfo(person) {
