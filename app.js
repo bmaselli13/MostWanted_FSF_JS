@@ -66,15 +66,23 @@ function searchByName(people) {
 function searchByTraits(people) {
     const traitToSearch = validatedPrompt(
         'Please enter the trait you want to search for (e.g., eyeColor, occupation, etc.):',
-        ['eyeColor', 'occupation', 'gender', 'other_trait'] // Add more traits as needed
-    ).toLowerCase(); // Convert user input to lowercase
+        ['eyeColor', 'occupation', 'gender', 'other_trait']
+    ).toLowerCase(); 
 
+    const valueToSearchFor = prompt(`Please enter the ${traitToSearch} you are searching for:`).toLowerCase(); // Get the value to search for
+
+    //
     const results = people.filter(person => {
         const personTrait = person[traitToSearch] ? person[traitToSearch].toLowerCase() : null; // Convert trait in person to lowercase if it exists, otherwise set to null
-        return personTrait === traitToSearch;
+        return personTrait === valueToSearchFor;
     });
 
-    return results;
+    // Display the results in an alert
+    if (results.length > 0) {
+        displayPeople(`Search Results for ${traitToSearch}=${valueToSearchFor}`, results);
+    } else {
+        alert(`No matching people found for ${traitToSearch}=${valueToSearchFor}.`);
+    }
 }
 
 
@@ -82,18 +90,22 @@ function searchByTraits(people) {
 function mainMenu(person, people) {
     const mainMenuUserActionChoice = validatedPrompt(
         `Person: ${person.firstName} ${person.lastName}\n\nDo you want to know their full information, family, descendants, search by trait, or quit?`,
-        ['info', 'family', 'descendants', 'trait', 'quit'] // Add 'trait' as an option
+        ['info', 'family', 'descendants', 'trait', 'quit'] 
     );
 
     switch (mainMenuUserActionChoice) {
         case "info":            
+            displayPersonInfo(person);
             break;
-        case "family":            
+        case "family":
+            displayFamilyInfo(person, people);
             break;
         case "descendants":            
+            displayDescendantsInfo(person, people);
             break;
         case "trait":
-            const traitResults = searchByTraits(people);
+            // Search for traits of the selected person
+            const traitResults = searchByTraits([person]); 
             displayPeople('Trait Search Results', traitResults);
             break;
         case "quit":
@@ -101,14 +113,28 @@ function mainMenu(person, people) {
         default:
             alert('Invalid input. Please try again.');
     }
-
-    return mainMenu(person, people);
-}
+}    
 
 function displayPeople(displayTitle, peopleToDisplay) {
     const formatedPeopleDisplayText = peopleToDisplay.map(person => `${person.firstName} ${person.lastName}`).join('\n');
     alert(`${displayTitle}\n\n${formatedPeopleDisplayText}`);
 }
+
+function displayPersonInfo(person) {
+    const info = `
+        ID: ${person.id}
+        Name: ${person.firstName} ${person.lastName}
+        Gender: ${person.gender}
+        Date of Birth: ${person.dob}
+        Height: ${person.height} inches
+        Weight: ${person.weight} lbs
+        Eye Color: ${person.eyeColor}
+        Occupation: ${person.occupation}
+    `;
+    
+    alert(info);
+}
+
 
 function validatedPrompt(message, acceptableAnswers) {
     acceptableAnswers = acceptableAnswers.map(aa => aa.toLowerCase());
