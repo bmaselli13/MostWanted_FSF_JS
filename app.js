@@ -1,4 +1,3 @@
-
 function app(people) {
     displayWelcome();
     runSearchAndMenu(people);
@@ -12,6 +11,20 @@ function displayWelcome() {
 function displayPeople(displayTitle, peopleToDisplay) {
     const formatedPeopleDisplayText = peopleToDisplay.map(person => `${person.firstName} ${person.lastName}`).join('\n');
     alert(`${displayTitle}\n\n${formatedPeopleDisplayText}`);
+}
+
+function displayPersonInfo(person) {
+    const formattedInfo = `
+        ID: ${person.id}
+        Name: ${person.firstName} ${person.lastName}
+        Gender: ${person.gender}
+        Date of Birth: ${person.dob}
+        Height: ${person.height} inches
+        Weight: ${person.weight} lbs
+        Eye Color: ${person.eyeColor}
+        Occupation: ${person.occupation}
+    `;
+    alert(formattedInfo);
 }
 
 function runSearchAndMenu(people) {
@@ -37,16 +50,13 @@ function searchPeopleDataSet(people) {
 
     const searchTypeChoice = validatedPrompt(
         'Please enter in what type of search you would like to perform.',
-        ['id', 'name', 'traits', 'multi_trait']
+        ['name', 'traits', 'multi_trait']
     );
 
     console.log("Search type choice:", searchTypeChoice);
 
     let results = [];
     switch (searchTypeChoice) {
-        case 'id':
-            results = searchById(people);
-            break;
         case 'name':
             results = searchByName(people);
             break;
@@ -66,17 +76,13 @@ function searchPeopleDataSet(people) {
     return results;
 }
 
-function searchById(people) {
-    const idToSearchForString = prompt('Please enter the id of the person you are searching for.');
-    const idToSearchForInt = parseInt(idToSearchForString);
-    const idFilterResults = people.filter(person => person.id === idToSearchForInt);
-    return idFilterResults;
-}
-
 function searchByName(people) {
-    const firstNameToSearchFor = prompt('Please enter the the first name of the person you are searching for.');
-    const lastNameToSearchFor = prompt('Please enter the the last name of the person you are searching for.');
-    const fullNameSearchResults = people.filter(person => (person.firstName.toLowerCase() === firstNameToSearchFor.toLowerCase() && person.lastName.toLowerCase() === lastNameToSearchFor.toLowerCase()));
+    const firstNameToSearchFor = prompt('Please enter the first name of the person you are searching for.').toLowerCase();
+    const lastNameToSearchFor = prompt('Please enter the last name of the person you are searching for.').toLowerCase();
+    const fullNameSearchResults = people.filter(person =>
+        person.firstName.toLowerCase() === firstNameToSearchFor &&
+        person.lastName.toLowerCase() === lastNameToSearchFor
+    );
     return fullNameSearchResults;
 }
 
@@ -148,7 +154,6 @@ function searchByMultipleTraits(people) {
     }
 }
 
-
 function mainMenu(person, people) {
     const mainMenuUserActionChoice = validatedPrompt(
         `Person: ${person.firstName} ${person.lastName}\n\nDo you want to know their full information, family, descendants, search by trait, search by multiple traits, or quit?`,
@@ -179,9 +184,6 @@ function mainMenu(person, people) {
             alert('Invalid input. Please try again.');
     }
 }
-
-
-
 
 function searchByMultipleTraits(people) {
     let results = [...people];
@@ -304,10 +306,9 @@ function exitOrRestart(people) {
         case 'exit':
             return;
         case 'restart':
-            return app(people);
+            return app(people); // Pass the 'people' array as an argument
         default:
             alert('Invalid input. Please try again.');
             return exitOrRestart(people);
     }
-
 }
