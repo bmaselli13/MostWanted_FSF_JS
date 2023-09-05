@@ -9,6 +9,11 @@ function displayWelcome() {
     alert('Hello and welcome to the Most Wanted search application!');
 }
 
+function displayPeople(displayTitle, peopleToDisplay) {
+    const formatedPeopleDisplayText = peopleToDisplay.map(person => `${person.firstName} ${person.lastName}`).join('\n');
+    alert(`${displayTitle}\n\n${formatedPeopleDisplayText}`);
+}
+
 function runSearchAndMenu(people) {
     const searchResults = searchPeopleDataSet(people);
     console.log("Search results:", searchResults);
@@ -32,7 +37,7 @@ function searchPeopleDataSet(people) {
 
     const searchTypeChoice = validatedPrompt(
         'Please enter in what type of search you would like to perform.',
-        ['id', 'name', 'traits']
+        ['id', 'name', 'traits', 'multi_trait']
     );
 
     console.log("Search type choice:", searchTypeChoice);
@@ -47,6 +52,9 @@ function searchPeopleDataSet(people) {
             break;
         case 'traits':
             results = searchByTraits(people); 
+            break;
+        case 'multi_trait':
+            results = searchByMultipleTraits(people)
             break;
         default:
             console.log("Invalid search type choice:", searchTypeChoice);
@@ -94,82 +102,181 @@ function searchByTraits(people) {
     return results; 
 }
 
+function searchByMultipleTraits(people) {
+    let results = [...people];
+
+    while (results.length > 1) {
+        console.log("Inside loop. Current number of results:", results.length);
+
+        if (results.length === 0) {
+            alert(`No matching people found for the specified traits.`);
+            break;
+        }
+
+        if (results.length === 1) {
+            displayPeople(`Search Results for Multiple Traits`, results);
+            break;
+        }
+
+        const traitToSearch = validatedPrompt(
+            `Please enter the trait you want to search for (e.g., eyeColor, occupation, etc.):\nType 'done' if you are finished.`,
+            ['eyeColor', 'occupation', 'gender', 'other_trait', 'done']
+        ).toLowerCase(); 
+
+        if (traitToSearch === 'done') {
+            break;
+        }
+
+        console.log("Trait to search:", traitToSearch);
+
+        const valueToSearchFor = prompt(`Please enter the ${traitToSearch} you are searching for:`).toLowerCase();
+
+        console.log("Value to search for:", valueToSearchFor);
+
+        results = results.filter(person => {
+            const personTrait = person[traitToSearch] ? person[traitToSearch].toLowerCase() : null;
+            return personTrait === valueToSearchFor;
+        });
+    }
+
+    if (results.length === 1) {
+        displayPeople(`Search Results for Multiple Traits`, results);
+    } else if (results.length === 0) {
+        alert(`No matching people found for the specified traits.`);
+    } else {
+        alert(`No further filtering needed. ${results.length} people matched the specified traits.`);
+    }
+}
 
 
 function mainMenu(person, people) {
     const mainMenuUserActionChoice = validatedPrompt(
-        `Person: ${person.firstName} ${person.lastName}\n\nDo you want to know their full information, family, descendants, search by trait, or quit?`,
-        ['info', 'family', 'descendants', 'trait', 'quit'] 
+        `Person: ${person.firstName} ${person.lastName}\n\nDo you want to know their full information, family, descendants, search by trait, search by multiple traits, or quit?`,
+        ['info', 'family', 'descendants', 'trait', 'multi_trait', 'quit']
     );
 
+    console.log("User selected choice:", mainMenuUserActionChoice); // Add this line
+
     switch (mainMenuUserActionChoice) {
-        case "info":            
+        case "info":
             displayPersonInfo(person);
             break;
         case "family":
-            displayFamilyInfo(person, people); 
+            displayFamilyInfo(person, people);
             break;
-        case "descendants":            
+        case "descendants":
             displayDescendantsInfo(person, people);
             break;
-        case "trait":            
-            const traitResults = searchByTraits([person]); 
-            displayPeople('Trait Search Results', traitResults);
+        case "trait":
+            searchByTraits(people);
+            break;
+        case "multi_trait":
+            searchByMultipleTraits(people);
             break;
         case "quit":
             return;
         default:
             alert('Invalid input. Please try again.');
     }
-} 
+}
 
-function displayPeople(displayTitle, peopleToDisplay) {
-    const formatedPeopleDisplayText = peopleToDisplay.map(person => `${person.firstName} ${person.lastName}`).join('\n');
-    alert(`${displayTitle}\n\n${formatedPeopleDisplayText}`);
+
+
+
+function searchByMultipleTraits(people) {
+    let results = [...people];
+
+    while (results.length > 1) {
+        console.log("Inside loop. Current number of results:", results.length);
+
+        const traitToSearch = validatedPrompt(
+            `Please enter the trait you want to search for (e.g., eyeColor, occupation, etc.):\nType 'done' if you are finished.`,
+            ['eyeColor', 'occupation', 'gender', 'other_trait', 'done']
+        ).toLowerCase(); 
+
+        if (traitToSearch === 'done') {
+            break;
+        }
+
+        console.log("Trait to search:", traitToSearch);
+
+        const valueToSearchFor = prompt(`Please enter the ${traitToSearch} you are searching for:`).toLowerCase();
+
+        console.log("Value to search for:", valueToSearchFor);
+
+        results = results.filter(person => {
+            const personTrait = person[traitToSearch] ? person[traitToSearch].toLowerCase() : null;
+            return personTrait === valueToSearchFor;
+        });
+
+        if (results.length === 0) {
+            alert(`No matching people found for the specified traits.`);
+            break;
+        }
+    }
+
+    if (results.length === 1) {
+        displayPeople(`Search Results for Multiple Traits`, results);
+    } else if (results.length === 0) {
+        alert(`No matching people found for the specified traits.`);
+    } else {
+        alert(`No further filtering needed. ${results.length} people matched the specified traits.`);
+    }
+}
+
+function displayDescendantsInfo(person, people) {
+    const descendants = findDescendants(person, people);
+    const formattedDescendantsDisplayText = descendants.map(descendant => `${descendant.firstName} ${descendant.lastName}`).join('\n');
+    alert(`Descendants:\n\n${formattedDescendantsDisplayText}`);
+}
+
+function findDescendants(person, people) {
+    const descendants = [];
+
+    const children = people.filter(p => p.parents.includes(person.id));
+    children.forEach(child => {
+        descendants.push(child);
+        const grandchildren = findDescendants(child, people);
+        descendants.push(...grandchildren);
+    });
+
+    return descendants;
 }
 
 function displayFamilyInfo(person, people) {
-    const familyMembers = findImmediateFamily(person, people);
-    const formattedFamilyDisplayText = familyMembers.map(member => `${member.relation}: ${member.firstName} ${member.lastName}`).join('\n');
-    alert(`Immediate Family Members:\n\n${formattedFamilyDisplayText}`);
+    const familyMembers = findFamilyMembers(person, people);
+    const formattedFamilyDisplayText = familyMembers.map(member => `${member.firstName} ${member.lastName}`).join('\n');
+    alert(`Family Members:\n\n${formattedFamilyDisplayText}`);
 }
 
-function findImmediateFamily(person, people) {
+function findFamilyMembers(person, people) {
     const familyMembers = [];
 
-    
-    if (person.currentSpouse) {
-        const spouse = people.find(p => p.id === person.currentSpouse);
-        if (spouse) {
-            familyMembers.push({ relation: 'Spouse', ...spouse });
-        }
-    }
-    
-    const parents = people.filter(p => person.parents.includes(p.id));
-    parents.forEach(parent => familyMembers.push({ relation: 'Parent', ...parent }));
+    const parents = people.filter(p => p.children && p.children.includes(person.id));
 
-    
-    const siblings = people.filter(p => p.parents.includes(...person.parents) && p.id !== person.id);
-    siblings.forEach(sibling => familyMembers.push({ relation: 'Sibling', ...sibling }));
+    parents.forEach(parent => {
+        familyMembers.push(parent);
+        const siblings = findSiblings(parent, people);
+        familyMembers.push(...siblings);
+    });
+
+    const children = people.filter(p => p.parents && p.parents.includes(person.id));
+    familyMembers.push(...children);
 
     return familyMembers;
 }
 
-function displayPersonInfo(person) {
-    const info = `
-        ID: ${person.id}
-        Name: ${person.firstName} ${person.lastName}
-        Gender: ${person.gender}
-        Date of Birth: ${person.dob}
-        Height: ${person.height} inches
-        Weight: ${person.weight} lbs
-        Eye Color: ${person.eyeColor}
-        Occupation: ${person.occupation}
-    `;
-    
-    alert(info);
-}
+function findSiblings(person, people) {
+    const siblings = [];
 
+    const parents = people.filter(p => p.children.includes(person.id) && p.id !== person.id);
+    parents.forEach(parent => {
+        const parentSiblings = people.filter(p => p.children.includes(parent.id) && p.id !== person.id && !siblings.includes(p));
+        siblings.push(...parentSiblings);
+    });
+
+    return siblings;
+}
 
 function validatedPrompt(message, acceptableAnswers) {
     acceptableAnswers = acceptableAnswers.map(aa => aa.toLowerCase());
