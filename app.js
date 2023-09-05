@@ -160,7 +160,7 @@ function mainMenu(person, people) {
         ['info', 'family', 'descendants', 'trait', 'multi_trait', 'quit']
     );
 
-    console.log("User selected choice:", mainMenuUserActionChoice); // Add this line
+    console.log("User selected choice:", mainMenuUserActionChoice); 
 
     switch (mainMenuUserActionChoice) {
         case "info":
@@ -306,7 +306,7 @@ function exitOrRestart(people) {
         case 'exit':
             return;
         case 'restart':
-            return app(people); // Pass the 'people' array as an argument
+            return app(people); 
         default:
             alert('Invalid input. Please try again.');
             return exitOrRestart(people);
