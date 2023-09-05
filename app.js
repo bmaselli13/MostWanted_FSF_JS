@@ -11,6 +11,7 @@ function displayWelcome() {
 
 function runSearchAndMenu(people) {
     const searchResults = searchPeopleDataSet(people);
+    console.log("Search results:", searchResults);
 
     if (searchResults.length > 1) {
         displayPeople('Search Results', searchResults);
@@ -22,14 +23,19 @@ function runSearchAndMenu(people) {
     else {
         alert('No one was found in the search.');
     }
+
+    return searchResults;
 }
 
 function searchPeopleDataSet(people) {
+    console.log("Running searchPeopleDataSet...");
 
     const searchTypeChoice = validatedPrompt(
         'Please enter in what type of search you would like to perform.',
         ['id', 'name', 'traits']
     );
+
+    console.log("Search type choice:", searchTypeChoice);
 
     let results = [];
     switch (searchTypeChoice) {
@@ -40,12 +46,15 @@ function searchPeopleDataSet(people) {
             results = searchByName(people);
             break;
         case 'traits':
-            results = searchByTraits(people);
+            results = searchByTraits(people); 
             break;
         default:
-            return searchPeopleDataSet(people);
+            console.log("Invalid search type choice:", searchTypeChoice);
+            results = []; 
+            break;
     }
 
+    console.log("Search results:", results);
     return results;
 }
 
@@ -69,20 +78,20 @@ function searchByTraits(people) {
         ['eyeColor', 'occupation', 'gender', 'other_trait']
     ).toLowerCase(); 
 
-    const valueToSearchFor = prompt(`Please enter the ${traitToSearch} you are searching for:`).toLowerCase(); // Get the value to search for
+    const valueToSearchFor = prompt(`Please enter the ${traitToSearch} you are searching for:`).toLowerCase();
 
-    //
     const results = people.filter(person => {
-        const personTrait = person[traitToSearch] ? person[traitToSearch].toLowerCase() : null; // Convert trait in person to lowercase if it exists, otherwise set to null
+        const personTrait = person[traitToSearch] ? person[traitToSearch].toLowerCase() : null;
         return personTrait === valueToSearchFor;
     });
 
-    // Display the results in an alert
     if (results.length > 0) {
         displayPeople(`Search Results for ${traitToSearch}=${valueToSearchFor}`, results);
     } else {
         alert(`No matching people found for ${traitToSearch}=${valueToSearchFor}.`);
     }
+
+    return results; 
 }
 
 
@@ -103,8 +112,7 @@ function mainMenu(person, people) {
         case "descendants":            
             displayDescendantsInfo(person, people);
             break;
-        case "trait":
-            // Search for traits of the selected person
+        case "trait":            
             const traitResults = searchByTraits([person]); 
             displayPeople('Trait Search Results', traitResults);
             break;
